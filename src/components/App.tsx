@@ -1,11 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import * as esbuild from 'esbuild-wasm';
-import { unpkgPathPlugin } from '../plugins/unpkg-path-plugin';
+import { useEffect, useState } from 'react';
+import { buildCodeFromString, startWasmService } from '../services/WasmService';
 
 const App = () => {
-  // Refs
-  const ref = useRef<any>();
-
   // State
   const [initializing, setInitializing] = useState(true);
   const [input, setInput] = useState('');
@@ -16,27 +12,8 @@ const App = () => {
     startWasmService().then(() => setInitializing(false));
   }, []);
 
-  async function startWasmService() {
-    ref.current = await esbuild.startService({
-      worker: true,
-      wasmURL: '/esbuild.wasm',
-    });
-  }
-
   async function handleSubmissionClick() {
-    if (!ref.current) return;
-
-    const buildResult = await ref.current.build({
-      entryPoints: ['index.js'],
-      bundle: true,
-      write: false,
-      plugins: [unpkgPathPlugin()],
-      define: {
-        'process.env.NODE_ENV': '"production"',
-        global: 'window',
-      },
-    });
-
+    const buildResult = await buildCodeFromString(input);
     setCode(buildResult.outputFiles[0].text);
   }
 
@@ -61,6 +38,7 @@ const App = () => {
         </button>
       </div>
       <pre>{code}</pre>
+      <iframe src='https://zachayers.io' title='code-output' />
     </div>
   );
 };
