@@ -1,11 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { buildCodeFromString, startWasmService } from '../services/WasmService';
+import CodeEditor from './code-editor';
+
+// language=HTML
+const iFrameHtml = `
+  <html lang="en">
+  <head>
+    <title>Code Runner</title>
+  </head>
+  <body>
+  <div id="root"></div>
+  <script>
+    window.addEventListener('message', event => {
+      try {
+        eval(event.data);
+      } catch (error) {
+        const root = document.getElementById('root');
+        root.innerHTML = '<div style="color: red;"><h4>Runtime Error</h4>' + error + '</div>';
+        console.error(error);
+      }
+    }, false)
+  </script>
+  </body>
+  </html>`;
 
 const App = () => {
   // State
   const [initializing, setInitializing] = useState(true);
   const [input, setInput] = useState('');
-  const [code, setCode] = useState('');
+
+  // Refs
+  const iFrame = useRef<any>();
 
   // Lifecycle
   useEffect(() => {
@@ -13,12 +38,18 @@ const App = () => {
   }, []);
 
   async function handleSubmissionClick() {
+    iFrame.current.srcdoc = iFrameHtml;
+
     const buildResult = await buildCodeFromString(input);
-    setCode(buildResult.outputFiles[0].text);
+    iFrame.current.contentWindow.postMessage(
+      buildResult.outputFiles[0].text,
+      '*',
+    );
   }
 
   return (
     <div>
+      <CodeEditor initialValue={"console.log('Hello World');"} />
       <textarea
         disabled={initializing}
         name='entry'
@@ -37,8 +68,12 @@ const App = () => {
           Submit
         </button>
       </div>
-      <pre>{code}</pre>
-      <iframe src='https://zachayers.io' title='code-output' />
+      <iframe
+        srcDoc={iFrameHtml}
+        ref={iFrame}
+        title='code-output'
+        sandbox='allow-scripts'
+      />
     </div>
   );
 };

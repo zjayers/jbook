@@ -6,20 +6,20 @@ export const unpkgPathPlugin = () => ({
   setup(build: esbuild.PluginBuild) {
     // Handle root entry file of index.js
     build.onResolve({ filter: /(^index\.js$)/ }, (args: any) => ({
-      path: 'index.js',
       namespace: 'a',
+      path: 'index.js',
     }));
 
     // Handle relative paths in a module (./ or ../)
     build.onResolve({ filter: /^\.+\// }, (args: any) => ({
-      path: new URL(args.path, `https://unpkg.com/${args.resolveDir}/`).href,
       namespace: 'a',
+      path: new URL(args.path, `https://unpkg.com/${args.resolveDir}/`).href,
     }));
 
     // Handle main file of a module
     build.onResolve({ filter: /.*/ }, async (args: any) => ({
-      path: `https://unpkg.com/${args.path}`,
       namespace: 'a',
+      path: `https://unpkg.com/${args.path}`,
     }));
   },
 });

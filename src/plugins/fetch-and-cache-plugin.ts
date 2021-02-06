@@ -8,8 +8,8 @@ export const fetchAndCachePlugin = (input: string) => ({
   setup(build: esbuild.PluginBuild) {
     // Handle root entry file of index.js
     build.onLoad({ filter: /(^index\.js$)/ }, () => ({
-      loader: 'jsx',
       contents: input,
+      loader: 'jsx',
     }));
 
     // Handle Cache Fetching for all files

@@ -16,8 +16,8 @@ export const cacheAndReturnContents = async (
   path: string,
 ) => {
   const fileContents: OnLoadResult = {
-    loader: 'jsx',
     contents: fileData,
+    loader: 'jsx',
     resolveDir: new URL('./', url).pathname,
   };
 

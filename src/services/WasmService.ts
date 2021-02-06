@@ -8,19 +8,19 @@ let WASM_SERVICE: any = null;
 
 export const startWasmService = async () => {
   WASM_SERVICE = await esbuild.startService({
-    worker: true,
     wasmURL: ESBUILD_WASM_URL,
+    worker: true,
   });
 };
 
 export const buildCodeFromString = async (input: string) =>
   WASM_SERVICE.build({
-    entryPoints: ['index.js'],
     bundle: true,
-    write: false,
-    plugins: [unpkgPathPlugin(), fetchAndCachePlugin(input)],
     define: {
-      'process.env.NODE_ENV': '"production"',
       global: 'window',
+      'process.env.NODE_ENV': '"production"',
     },
+    entryPoints: ['index.js'],
+    plugins: [unpkgPathPlugin(), fetchAndCachePlugin(input)],
+    write: false,
   });
