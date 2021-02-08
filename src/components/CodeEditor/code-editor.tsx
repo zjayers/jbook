@@ -6,6 +6,7 @@ import parser from 'prettier/parser-babel';
 import codeShift from 'jscodeshift';
 import Highlighter from 'monaco-jsx-highlighter';
 import './code-editor.styles.css';
+import _ from 'lodash';
 import { WasmService } from '../../hooks/useWasmService';
 
 interface CodeEditorProps {
@@ -17,11 +18,12 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 }) => {
   // Refs
   const editorRef = useRef<any>();
+  const debouncedSetInput = _.debounce(setInput, 100);
 
   const handleEditorMount: OnMount = (editor, _monaco) => {
     editorRef.current = editor;
 
-    editor.onDidChangeModelContent(() => setInput(editor.getValue()));
+    editor.onDidChangeModelContent(() => debouncedSetInput(editor.getValue()));
 
     editor.getModel()?.updateOptions({ tabSize: 2 });
 

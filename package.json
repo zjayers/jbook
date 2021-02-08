@@ -15,6 +15,7 @@
     "esbuild-wasm": "0.8.33",
     "jscodeshift": "0.11.0",
     "localforage": "^1.9.0",
+    "lodash": "^4.17.20",
     "monaco-editor": "^0.21.3",
     "monaco-jsx-highlighter": "0.0.15",
     "prettier": "^2.2.1",
@@ -46,6 +47,7 @@
   "devDependencies": {
     "@types/eslint": "^7.2.6",
     "@types/jest": "^26.0.20",
+    "@types/lodash": "^4.14.168",
     "@types/node": "^12.19.15",
     "@types/react": "^16.14.2",
     "@types/react-dom": "^16.9.10",

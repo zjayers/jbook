@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import _, { DebouncedFunc } from 'lodash';
 import { buildCodeFromString, startWasmService } from '../services/WasmService';
-import { debounce } from '../utils/debounce';
 
 export interface WasmService {
-  bundleCode: () => Promise<void>;
+  bundleCode: DebouncedFunc<() => void>;
   code: string;
+  error: string;
   initializing: boolean;
   input: string;
   setInput: React.Dispatch<React.SetStateAction<string>>;
@@ -12,22 +13,23 @@ export interface WasmService {
 
 const useWasmService = (debounceTime: number = 1000): WasmService => {
   const [initializing, setInitializing] = useState(true);
-  const [code, setCode] = useState('');
-  const [input, setInput] = useState('// Insert Code Here\n');
+  const [code, setCode] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [input, setInput] = useState<string>('// Insert Code Here\n');
 
   // Lifecycle
   useEffect(() => {
     startWasmService().then(() => setInitializing(false));
   }, []);
 
-  const debouncedBuildCode = debounce(async () => {
-    const buildResult = await buildCodeFromString(input);
-    setCode(buildResult);
+  const bundleCode = _.debounce(() => {
+    buildCodeFromString(input).then((buildResult) => {
+      setError(buildResult.error);
+      setCode(buildResult.code);
+    });
   }, debounceTime);
 
-  const bundleCode = async () => debouncedBuildCode();
-
-  return { bundleCode, code, initializing, input, setInput };
+  return { bundleCode, code, error, initializing, input, setInput };
 };
 
 export default useWasmService;

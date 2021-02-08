@@ -15,27 +15,47 @@ const iFrameHtml = `
   <body>
   <div id="root"></div>
   <script>
+    const handleError = (error) => {
+      const root = document.getElementById('root');
+      root.innerHTML = '<div style="color: red;"><h4>Runtime Error</h4>' + error + '</div>';
+      console.error(error);
+    }
+    
+    // Handle Uncaught Errors
+    window.addEventListener('error', event => {
+      event.preventDefault();
+      handleError(event.error);
+    })
+  
+    // Handle Code Execution
     window.addEventListener('message', event => {
       try {
         eval(event.data);
       } catch (error) {
-        const root = document.getElementById('root');
-        root.innerHTML = '<div style="color: red;"><h4>Runtime Error</h4>' + error + '</div>';
-        console.error(error);
+        handleError(error);
       }
     }, false)
   </script>
   </body>
   </html>`;
 
-const Preview: React.FC<PreviewProps> = ({ wasmService: { code } }) => {
+const Preview: React.FC<PreviewProps> = ({ wasmService: { code, error } }) => {
   // Refs
   const iFrame = useRef<any>();
 
   useEffect(() => {
-    iFrame.current.srcdoc = iFrameHtml;
-    setTimeout(() => iFrame.current.contentWindow.postMessage(code, '*'), 100);
-  }, [code]);
+    if (error) {
+      throw Error(error);
+    }
+
+    if (iFrame) {
+      // iFrame.current.srcdoc = iFrameHtml;
+
+      setTimeout(() => {
+        iFrame.current.contentWindow.postMessage(code, '*');
+      }, 100);
+    }
+  }, [code, error]);
 
   return (
     <div className='preview-wrapper'>

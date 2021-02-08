@@ -6,6 +6,11 @@ import { fetchAndCachePlugin } from '../plugins/fetch-and-cache-plugin';
 
 let WASM_SERVICE: any = null;
 
+interface BundleResult {
+  code: string;
+  error: string;
+}
+
 export const startWasmService = async () => {
   if (!WASM_SERVICE) {
     WASM_SERVICE = await esbuild.startService({
@@ -15,16 +20,24 @@ export const startWasmService = async () => {
   }
 };
 
-export const buildCodeFromString = async (rawCode: string): Promise<string> => {
-  const buildResult = await WASM_SERVICE.build({
-    bundle: true,
-    define: {
-      global: 'window',
-      'process.env.NODE_ENV': '"production"',
-    },
-    entryPoints: ['index.js'],
-    plugins: [unpkgPathPlugin(), fetchAndCachePlugin(rawCode)],
-    write: false,
-  });
-  return buildResult.outputFiles[0].text;
+export const buildCodeFromString = async (
+  rawCode: string,
+): Promise<BundleResult> => {
+  if (!WASM_SERVICE) return { code: '', error: '' };
+
+  try {
+    const buildResult = await WASM_SERVICE.build({
+      bundle: true,
+      define: {
+        global: 'window',
+        'process.env.NODE_ENV': '"production"',
+      },
+      entryPoints: ['index.js'],
+      plugins: [unpkgPathPlugin(), fetchAndCachePlugin(rawCode)],
+      write: false,
+    });
+    return { code: buildResult.outputFiles[0].text, error: '' };
+  } catch (e) {
+    return { code: '', error: e.message };
+  }
 };
