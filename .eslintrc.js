@@ -24,10 +24,12 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'jsx-quotes': ['error', 'prefer-single'],
     'no-shadow': 'off',
+    'object-curly-newline': 'off',
     'react/jsx-filename-extension': [
       2,
       { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
     ],
+    'react/prop-types': 'off',
     'react/react-in-jsx-scope': 'off',
     'sort-keys-fix/sort-keys-fix': 'warn',
   },
